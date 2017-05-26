@@ -553,19 +553,22 @@ function openvz6_ChangePassword($params = [])
  * @param $params
  * @return string
  */
-function openvz6_ClientArea($params)
+function openvz6_ClientArea($params = [])
 {
-	// ctid, host, ip + ipv6, login + password
-	$html = <<<HTML
+    $CTID = $params['customfields']['ctid'];
+    $hostname = $params['domain'];
+    $password = $params['password'];
+
+    $html = <<<HTML
 
 <table>
 	<tr>
 		<td>CTID</td>
-		<td></td>
+		<td>$CTID</td>
 	</tr>
 	<tr>
 		<td>Hostname</td>
-		<td></td>
+		<td>$hostname</td>
 	</tr>
 	<tr>
 		<td>IP</td>
@@ -573,7 +576,7 @@ function openvz6_ClientArea($params)
 	</tr>
 	<tr>
 		<td>root</td>
-		<td></td>
+		<td>$password</td>
 	</tr>
 </table>
 
