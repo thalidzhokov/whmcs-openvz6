@@ -22,12 +22,13 @@ require_once PATH . '/SSH2.php';
 /**
  * @return array
  */
-function provisioningmodule_MetaData()
+function openvz6_MetaData()
 {
 	return [
-		'DisplayName' => 'openvz6',
+		'DisplayName' => 'OpenVZ6 Module',
 		'APIVersion' => '1.1',
-		'RequiresServer' => True
+        'RequiresServer' => true,
+		'DefaultSSLPort' => '22'
 	];
 }
 
@@ -481,7 +482,6 @@ CMD;
 	return $similarity > 95 ? 'success' : $execSet;
 }
 
-
 /**
  * @param array $params
  * @return bool|string
@@ -589,11 +589,12 @@ function openvz6_AdminLink($params)
 /**
  * Setup > Products/services > Servers
  * @param array $params
+ * @return string
  */
 function openvz6_LoginLink($params = [])
 {
 	$html = openvz6_AdminLink($params);
-	echo $html;
+	return $html;
 }
 
 /**
