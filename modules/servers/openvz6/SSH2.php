@@ -188,6 +188,6 @@ class SSH2
 			$rtn = "Failed to Shell";
 		}
 
-		return preg_replace("/[^A-ZА-Яa-zа-я0-9\-\/\.\n ]/", '', $rtn);
+		return preg_replace("/[^A-ZА-Яa-zа-я0-9\:\-\/\.\n ]/", '', $rtn);
 	}
 }

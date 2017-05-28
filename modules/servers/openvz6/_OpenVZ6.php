@@ -24,7 +24,10 @@ class _OpenVZ6
 	{
 		$status = False;
 
-		if (filter_var($host, FILTER_SANITIZE_URL)) {
+		if (
+			filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ||
+			filter_var($host, FILTER_SANITIZE_URL)
+		) {
 			$fp = fsockopen($host, self::PORT, $errcode, $errstr, 1);
 
 			if ($fp) {

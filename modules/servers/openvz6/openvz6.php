@@ -555,39 +555,14 @@ function openvz6_ChangePassword($params = [])
  */
 function openvz6_ClientArea($params = [])
 {
-    $CTID = $params['customfields']['ctid'];
-    $hostname = $params['domain'];
-    $password = $params['password'];
+	$dedicatedip = $params['templatevars']['dedicatedip'];
+	$html = _openvz6_getStyle();
 
-    $html = <<<HTML
-
-<table>
-	<tr>
-		<td>CTID</td>
-		<td>$CTID</td>
-	</tr>
-	<tr>
-		<td>Hostname</td>
-		<td>$hostname</td>
-	</tr>
-	<tr>
-		<td>IP</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>root</td>
-		<td>$password</td>
-	</tr>
-</table>
-
-HTML;
-
-	// status
-	// top
-
-	// start
-	// restart
-	// stop
+	// ping
+    if($dedicatedip) {
+	$html .= '<i class="openvz6-ping ' .
+		(_OpenVZ6::ping($dedicatedip) ? 'true' : 'false') . '"> Ping</i>';
+    }
 
 	return $html;
 }
@@ -658,7 +633,11 @@ function openvz6_AdminCustomButtonArray($params = [])
 	return $buttons;
 }
 
-function openvz6_ClientAreaCustomButtonArray($params)
+/**
+ * @param array $params
+ * @return array
+ */
+function openvz6_ClientAreaCustomButtonArray($params = [])
 {
 	$status = _openvz6_getStatus($params);
 
@@ -808,13 +787,13 @@ function openvz6_vzctlStart($params = [])
 	$exec = _openvz6_exec($params, $cmd);
 
 	$successMsg = [
-		'Starting container... Container is mounted Adding IP addresses IPS Setting CPU limit (CPULIMIT) Setting CPU units (CPUUNITS) Setting CPUs (CPUS) Container start in progress...'
+		'Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
 	$e = str_replace("\n", ' ', $exec);
-	$e = preg_replace("/(.+ IP addresses) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
-	$e = preg_replace("/(.+ CPU limit) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
-	$e = preg_replace("/(.+ CPU units) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
-	$e = preg_replace("/(.+ CPUs) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
+	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
+	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
+	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
+	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
 	$similarity = 0;
 
 	foreach ($successMsg as $sKey => $s) {
@@ -835,9 +814,29 @@ function openvz6_vzctlStart($params = [])
 function openvz6_vzctlRestart($params = [])
 {
 	$cmd = 'vzctl restart ' . $params['customfields']['ctid'];
-	return _openvz6_exec($params, $cmd);
+	$exec = _openvz6_exec($params, $cmd);
 
-	// Restarting container Stopping container ... Container was stopped Container is unmounted Starting container... Container is mounted Adding IP address(es): 88.99.109.127 2a01:4f8:10a:145b::127 Setting CPU limit: 50 Setting CPU units: 1000 Setting CPUs: 2 Container start in progress...
+	$successMsg = [
+		'Restarting container Stopping container ... Container was stopped Container is unmounted Starting container... Container is mounted Adding IP address(es): (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...',
+        'Restarting container Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
+	];
+	$e = str_replace("\n", ' ', $exec);
+	$e = preg_replace("/(.+ IP address\(es\):) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
+	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
+	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
+	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
+	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
+	$similarity = 0;
+
+	foreach ($successMsg as $sKey => $s) {
+		similar_text($s, $e, $percent);
+
+		if ($percent > $similarity) {
+			$similarity = $percent;
+		}
+	}
+
+	return $similarity > 95 ? 'success' : $exec;
 }
 
 /**
@@ -847,9 +846,25 @@ function openvz6_vzctlRestart($params = [])
 function openvz6_vzctlStop($params = [])
 {
 	$cmd = 'vzctl stop ' . $params['customfields']['ctid'];
-	return _openvz6_exec($params, $cmd);
+	$exec = _openvz6_exec($params, $cmd);
 
-	// Stopping container ... Container was stopped Container is unmounted
+	$successMsg = [
+		'Stopping container ... Container was stopped Container is unmounted'
+	];
+	$e = str_replace("\n", '', $exec);
+	$similarity = 0;
+
+	foreach ($successMsg as $sKey => $s) {
+		similar_text($s, $e, $percent);
+
+		if ($percent > $similarity) {
+			$similarity = $percent;
+		}
+	}
+
+	$success = $similarity > 95;
+
+	return $success ? 'success' : $exec;
 }
 
 /**
