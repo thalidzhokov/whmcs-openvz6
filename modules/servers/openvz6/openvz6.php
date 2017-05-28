@@ -27,7 +27,7 @@ function openvz6_MetaData()
 	return [
 		'DisplayName' => 'OpenVZ6 Module',
 		'APIVersion' => '1.1',
-        'RequiresServer' => true,
+        'RequiresServer' => False,
 		'DefaultSSLPort' => '22'
 	];
 }
@@ -600,6 +600,7 @@ function openvz6_LoginLink($params = [])
 /**
  * @param $params
  * @return array
+ * TODO: bug with server selection
  */
 function openvz6_AdminCustomButtonArray($params = [])
 {
