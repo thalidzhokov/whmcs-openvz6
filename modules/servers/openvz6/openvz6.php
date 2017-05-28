@@ -2,7 +2,7 @@
 /**
  * Description: Module for OpenVZ 6 integration
  * Author: Albert Thalidzhokov
- * Site: https://github.com/handaehan
+ * URL: https://github.com/handaehan/whmcs-openvz6
  */
 
 if (!defined('WHMCS')) {
