@@ -568,7 +568,7 @@ HTML;
             if ($chunk[$start] != 0)
             {
                 $ip = isset($range) ? long2ip(ip2long($range[1]) + 1) : $range[0];
-                $range = rangeToCidr($ip . '/' . (32 - $start));
+                $range = self::rangeToCidr($ip . '/' . (32 - $start));
                 $cidr[] = $ip . '/' . (32 - $start);
             }
             $start++;
