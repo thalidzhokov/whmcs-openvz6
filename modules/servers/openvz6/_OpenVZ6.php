@@ -487,7 +487,7 @@ HTML;
 	 * @param string $type Available: array, arrayBinary, binary OR bin, array6, arrayBinary6, hex
 	 * @return array|string
 	 */
-	public static function ipTo($ip = '', $type = 'hex')
+	public static function ipTo($ip = '', $type = 'binary')
 	{
 		$rtn = '';
 
@@ -548,6 +548,34 @@ HTML;
 
 		return $rtn;
 	}
+
+    /**
+     * @param array $range e.g. ['192.168.1.100', '192.168.1.118']
+     * @return array
+     */
+	public static  function rangeToCidr ($range = []) {
+        $cidr = [];
+
+        $num = ip2long($range[1]) - ip2long($range[0]) + 1;
+        $bin = decbin($num);
+
+        $chunk = str_split($bin);
+        $chunk = array_reverse($chunk);
+        $start = 0;
+
+        while ($start < count($chunk))
+        {
+            if ($chunk[$start] != 0)
+            {
+                $ip = isset($range) ? long2ip(ip2long($range[1]) + 1) : $range[0];
+                $range = rangeToCidr($ip . '/' . (32 - $start));
+                $cidr[] = $ip . '/' . (32 - $start);
+            }
+            $start++;
+        }
+
+        return $cidr;
+    }
 
 	/**
 	 * @param string $cidr e.g. 192.168.1.118/27
@@ -613,6 +641,10 @@ HTML;
 		return $ips;
 	}
 
+    /**
+     * @param string $assignedIps
+     * @return array
+     */
 	public static function assignedIps($assignedIps = '')
 	{
 		$ips = [
