@@ -489,9 +489,25 @@ CMD;
 function openvz6_SuspendAccount($params = [])
 {
 	$cmd = 'vzctl suspend ' . $params['customfields']['ctid'];
-	return _openvz6_exec($params, $cmd);
+	$exec = _openvz6_exec($params, $cmd);
 
-	// Setting up checkpoint... suspend... dump... kill... Checkpointing completed successfully Container is unmounted
+	$successMsg = [
+		'Setting up checkpoint... suspend... dump... kill... Checkpointing completed successfully Container is unmounted'
+	];
+	$e = str_replace("\n", '', $exec);
+	$similarity = 0;
+
+	foreach ($successMsg as $sKey => $s) {
+		similar_text($s, $e, $percent);
+
+		if ($percent > $similarity) {
+			$similarity = $percent;
+		}
+	}
+
+	$success = $similarity > 95;
+
+	return $success ? 'success' : $exec;
 }
 
 /**
@@ -501,9 +517,27 @@ function openvz6_SuspendAccount($params = [])
 function openvz6_UnsuspendAccount($params)
 {
 	$cmd = 'vzctl resume ' . $params['customfields']['ctid'];
-	return _openvz6_exec($params, $cmd);
+	$exec = _openvz6_exec($params, $cmd);
 
-	// Restoring container ... Container is mounted undump... Adding IP address(es): 88.99.109.127 2a01:4f8:10a:145b::127 Setting CPU limit: 50 Setting CPU units: 1000 Setting CPUs: 2 resume... Container start in progress... Restoring completed successfully
+	$successMsg = [
+		'Restoring container ... Container is mounted undump... Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) resume... Container start in progress... Restoring completed successfully'
+	];
+	$e = str_replace("\n", ' ', $exec);
+	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
+	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
+	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
+	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
+	$similarity = 0;
+
+	foreach ($successMsg as $sKey => $s) {
+		similar_text($s, $e, $percent);
+
+		if ($percent > $similarity) {
+			$similarity = $percent;
+		}
+	}
+
+	return $similarity > 95 ? 'success' : $exec;
 }
 
 /**
