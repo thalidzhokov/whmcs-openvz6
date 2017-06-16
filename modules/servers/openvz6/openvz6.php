@@ -208,7 +208,6 @@ function openvz6_ConfigOptions()
  */
 function openvz6_CreateAccount($params = [])
 {
-	$rtn = '';
 	$serviceId = $params['serviceid'];
 	$ctid = $params['customfields']['ctid'];
 
@@ -238,11 +237,12 @@ function openvz6_CreateAccount($params = [])
 		}
 	}
 
+	$serverId = $params['serverid'];
+
 	if (empty($ips) || !is_array($ips)) {
-		$productIps = $ips;
-	} else {
-		$serverId = $params['serverid'];
 		$productIps = _OpenVZ6::getAvailableIp($serverId);
+	} else {
+		$productIps = $ips;
 	}
 
 	$packageId = $pid = $params['packageid'];
