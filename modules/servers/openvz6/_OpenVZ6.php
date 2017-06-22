@@ -549,33 +549,32 @@ HTML;
 		return $rtn;
 	}
 
-    /**
-     * @param array $range e.g. ['192.168.1.100', '192.168.1.118']
-     * @return array
-     */
-	public static  function rangeToCidr ($range = []) {
-        $cidr = [];
+	/**
+	 * @param array $range e.g. ['192.168.1.100', '192.168.1.118']
+	 * @return array
+	 */
+	public static function rangeToCidr($range = [])
+	{
+		$cidr = [];
 
-        $num = ip2long($range[1]) - ip2long($range[0]) + 1;
-        $bin = decbin($num);
+		$num = ip2long($range[1]) - ip2long($range[0]) + 1;
+		$bin = decbin($num);
 
-        $chunk = str_split($bin);
-        $chunk = array_reverse($chunk);
-        $start = 0;
+		$chunk = str_split($bin);
+		$chunk = array_reverse($chunk);
+		$start = 0;
 
-        while ($start < count($chunk))
-        {
-            if ($chunk[$start] != 0)
-            {
-                $ip = isset($range) ? long2ip(ip2long($range[1]) + 1) : $range[0];
-                $range = self::rangeToCidr($ip . '/' . (32 - $start));
-                $cidr[] = $ip . '/' . (32 - $start);
-            }
-            $start++;
-        }
+		while ($start < count($chunk)) {
+			if ($chunk[$start] != 0) {
+				$ip = isset($range) ? long2ip(ip2long($range[1]) + 1) : $range[0];
+				$range = self::rangeToCidr($ip . '/' . (32 - $start));
+				$cidr[] = $ip . '/' . (32 - $start);
+			}
+			$start++;
+		}
 
-        return $cidr;
-    }
+		return $cidr;
+	}
 
 	/**
 	 * @param string $cidr e.g. 192.168.1.118/27
@@ -641,10 +640,10 @@ HTML;
 		return $ips;
 	}
 
-    /**
-     * @param string $assignedIps
-     * @return array
-     */
+	/**
+	 * @param string $assignedIps
+	 * @return array
+	 */
 	public static function assignedIps($assignedIps = '')
 	{
 		$ips = [
