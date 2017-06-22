@@ -692,7 +692,7 @@ HTML;
 	public static function validateMsg($exec = '', $successMsg = []) {
 		$e = str_replace(
 			"\n",
-			'',
+			' ',
 			$exec);
 		$e = preg_replace(
 			"/(.+ IP addresses:) .+? (Setting .+)/",
