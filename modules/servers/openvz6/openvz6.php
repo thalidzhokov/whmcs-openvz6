@@ -289,18 +289,8 @@ function openvz6_CreateAccount($params = [])
 				$successMsg = [
 					'CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 				];
-				$e = str_replace("\n", '', $execIp[$productIpKey]);
-				$similarity = 0;
 
-				foreach ($successMsg as $sKey => $s) {
-					similar_text($s, $e, $percent);
-
-					if ($percent > $similarity) {
-						$similarity = $percent;
-					}
-				}
-
-				if ($similarity > 95) {
+				if (_OpenVZ6::validateMsg($execIp, $successMsg) === 'success') {
 					if ($i > 0) { // Assigned IPs
 						$query = 'SELECT * FROM `tblhosting` WHERE `id` = ' . $serviceId;
 						$results = mysql_query($query);
@@ -373,23 +363,13 @@ vzctl create $ctid
 CMD;
 
 	$vzctlCreate = str_replace("\n", '', $vzctlCreate);
-	$execCreate = _openvz6_exec($params, $vzctlCreate);
+	$exec = _openvz6_exec($params, $vzctlCreate);
 
 	$successMsg = [
 		'Creating container private area (' . $template . ') Performing postcreate actions CT configuration saved to /etc/vz/conf/' . $ctid . '.conf Container private area was created'
 	];
-	$e = str_replace("\n", '', $execCreate);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	return $similarity > 95 ? 'success' : $execCreate;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -463,23 +443,13 @@ vzctl set $ctid
 CMD;
 
 	$vzctlSet = str_replace("\n", '', $vzctlSet);
-	$execSet = _openvz6_exec($params, $vzctlSet);
+	$exec = _openvz6_exec($params, $vzctlSet);
 
 	$successMsg = [
 		'Starting container... Container is mounted Container start in progress... Changing password for user root. passwd all authentication tokens updated successfully. Killing container ... Container was stopped Container is unmounted CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 	];
-	$e = str_replace("\n", '', $execSet);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	return $similarity > 95 ? 'success' : $execSet;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -494,20 +464,8 @@ function openvz6_SuspendAccount($params = [])
 	$successMsg = [
 		'Setting up checkpoint... suspend... dump... kill... Checkpointing completed successfully Container is unmounted'
 	];
-	$e = str_replace("\n", '', $exec);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	$success = $similarity > 95;
-
-	return $success ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -522,22 +480,8 @@ function openvz6_UnsuspendAccount($params)
 	$successMsg = [
 		'Restoring container ... Container is mounted undump... Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) resume... Container start in progress... Restoring completed successfully'
 	];
-	$e = str_replace("\n", ' ', $exec);
-	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
-	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
-	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
-	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	return $similarity > 95 ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -550,6 +494,7 @@ function openvz6_TerminateAccount($params)
 	$cmd = 'vzctl destroy ' . $ctid;
 	$exec = _openvz6_exec($params, $cmd);
 
+	// TODO: need validate result
 	return $exec;
 }
 
@@ -567,20 +512,8 @@ function openvz6_ChangePassword($params = [])
 		'Starting container... Container is mounted Container start in progress... Changing password for user root. passwd: all authentication tokens updated successfully. Killing container ... Container was stopped Container is unmounted',
 		'Changing password for user root. passwd: all authentication tokens updated successfully. UB limits were set successfully'
 	];
-	$e = str_replace("\n", '', $exec);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	$success = $similarity > 95;
-
-	return $success ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -825,22 +758,8 @@ function openvz6_vzctlStart($params = [])
 	$successMsg = [
 		'Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
-	$e = str_replace("\n", ' ', $exec);
-	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
-	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
-	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
-	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	return $similarity > 95 ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -856,23 +775,8 @@ function openvz6_vzctlRestart($params = [])
 		'Restarting container Stopping container ... Container was stopped Container is unmounted Starting container... Container is mounted Adding IP address(es): (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...',
         'Restarting container Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
-	$e = str_replace("\n", ' ', $exec);
-	$e = preg_replace("/(.+ IP address\(es\):) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
-	$e = preg_replace("/(.+ IP addresses:) .+? (Setting .+)/", "\\1 (IPS) \\2", $e);
-	$e = preg_replace("/(.+ CPU limit:) .+? (Setting .+)/", "\\1 (CPULIMIT) \\2", $e);
-	$e = preg_replace("/(.+ CPU units:) .+? (Setting .+)/", "\\1 (CPUUNITS) \\2", $e);
-	$e = preg_replace("/(.+ CPUs:) .+? (Container .+)/", "\\1 (CPUS) \\2", $e);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	return $similarity > 95 ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -887,20 +791,8 @@ function openvz6_vzctlStop($params = [])
 	$successMsg = [
 		'Stopping container ... Container was stopped Container is unmounted'
 	];
-	$e = str_replace("\n", '', $exec);
-	$similarity = 0;
 
-	foreach ($successMsg as $sKey => $s) {
-		similar_text($s, $e, $percent);
-
-		if ($percent > $similarity) {
-			$similarity = $percent;
-		}
-	}
-
-	$success = $similarity > 95;
-
-	return $success ? 'success' : $exec;
+	return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**

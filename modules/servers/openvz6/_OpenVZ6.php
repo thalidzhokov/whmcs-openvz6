@@ -683,4 +683,48 @@ HTML;
 
 		return $ips;
 	}
+
+	/**
+	 * @param string $exec
+	 * @param array $successMsg
+	 * @return string
+	 */
+	public static function validateMsg($exec = '', $successMsg = []) {
+		$e = str_replace(
+			"\n",
+			'',
+			$exec);
+		$e = preg_replace(
+			"/(.+ IP addresses:) .+? (Setting .+)/",
+			"\\1 (IPS) \\2",
+			$e);
+		$e = preg_replace(
+			"/(.+ IP address\(es\):) .+? (Setting .+)/",
+			"\\1 (IPS) \\2",
+			$e);
+		$e = preg_replace(
+			"/(.+ CPU limit:) .+? (Setting .+)/",
+			"\\1 (CPULIMIT) \\2",
+			$e);
+		$e = preg_replace(
+			"/(.+ CPU units:) .+? (Setting .+)/",
+			"\\1 (CPUUNITS) \\2",
+			$e);
+		$e = preg_replace(
+			"/(.+ CPUs:) .+? (Container .+)/",
+			"\\1 (CPUS) \\2",
+			$e);
+
+		$similarity = 0;
+
+		foreach ($successMsg as $sKey => $s) {
+			similar_text($s, $e, $percent);
+
+			if ($percent > $similarity) {
+				$similarity = $percent;
+			}
+		}
+
+		return $similarity > 95 ? 'success' : $exec;
+	}
 }
