@@ -25,7 +25,7 @@ require_once PATH . '/SSH2.php';
 function openvz6_MetaData()
 {
 	return [
-		'DisplayName' => 'OpenVZ6 Module',
+		'DisplayName' => 'OpenVZ6',
 		'APIVersion' => '1.1',
         'RequiresServer' => False,
 		'DefaultSSLPort' => '22'
