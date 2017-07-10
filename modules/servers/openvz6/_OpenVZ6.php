@@ -308,9 +308,11 @@ Their brands were still on fire and their hooves were made of steel
 Their horns were black and shiny and their hot breath he could feel
 A bolt of fear went through him as they thundered through the sky
 For he saw the riders coming hard and he heard their mournful cry
+
 Yippie yi ooh
 Yippie yi yay
 Ghost riders in the sky
+
 Their faces gaunt, their eyes were blurred, their shirts all soaked with sweat
 He's riding hard to catch that herd, but he ain't caught 'em yet
 'Cause they've got to ride forever on that range up in the sky
@@ -320,6 +322,7 @@ As the riders loped on by him he heard one call his name
 If you want to save your soul from hell a-riding on our range
 Then cowboy change your ways today or with us you will ride
 Trying to catch the devil's herd, across these endless skies
+
 Yippie yi ooh
 Yippie yi yay
 Ghost riders in the sky

@@ -494,8 +494,11 @@ function openvz6_TerminateAccount($params)
 	$cmd = 'vzctl destroy ' . $ctid;
 	$exec = _openvz6_exec($params, $cmd);
 
-	// TODO: need validate result
-	return $exec;
+    $successMsg = [
+        'Destroying container private area: /vz/private/' . $ctid . ' Container private area was destroyed'
+    ];
+
+    return _OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
