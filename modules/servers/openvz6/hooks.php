@@ -7,6 +7,11 @@ if (!defined('WHMCS')) {
 	die('This file cannot be accessed directly');
 }
 
+define('PATH', __DIR__);
+
+require_once PATH . '/_OpenVZ6.php';
+require_once PATH . '/SSH2.php';
+
 /**
  * Add custom fields for product
  * http://developers.whmcs.com/hooks-reference/products-and-services/#productedit
