@@ -538,12 +538,13 @@ function openvz6_ClientArea($params = [])
 }
 
 /**
- * @param $params
+ * @param array $params
  * @return string
  */
-function openvz6_AdminLink($params)
+function openvz6_AdminLink($params = [])
 {
 	$html = _openvz6_getStyle();
+	$html .= _openvz6_getJs($params);
 	$host = _openvz6_getHost($params);
 
 	// link
@@ -720,6 +721,40 @@ function _openvz6_getStyle()
 
 /**
  * @param array $params
+ * @return string
+ */
+function _openvz6_getJs($params = [])
+{
+    $serverId = !empty($params['serverid']) ? $params['serverid'] : 0;
+
+	ob_start(); ?>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+
+            <?php if ($serverId) { ?>
+            function selectedServer () {
+                var $select = $('select[name="server"]'),
+                    $selected = $('option[value="<?= $serverId; ?>"]', $select);
+
+                if ($selected.length > 0) {
+                    $select.val('<?= $serverId; ?>');
+                }
+            }
+
+            selectedServer();
+            <?php } ?>
+
+        });
+    </script>
+
+	<?php $script = ob_get_clean();
+
+	return $script;
+}
+
+/**
+ * @param array $params
  * @param string $cmd
  * @param int $sleep
  * @return bool|string
@@ -827,7 +862,7 @@ function _openvz6_getStatus($params = [])
  * @param $params
  * @return bool|string
  */
-function openvz6_vzctlChkpnt($params)
+function openvz6_vzctlChkpnt($params = [])
 {
 	$ctid = $params['customfields']['ctid'];
 	$cmd = 'vzctl chkpnt ' . $ctid;
