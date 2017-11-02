@@ -19,7 +19,11 @@ require_once PATH . '/SSH2.php';
 
 add_hook('ProductEdit', 1, function($vars) {
 	$pid = $vars['pid'];
-	$fieldOptions = _OpenVZ6::templates();
-	_OpenVZ6::productField($pid, 'ctid', 'text', [], true);
-	_OpenVZ6::productField($pid, 'template', 'dropdown', $fieldOptions, false);
+	$serverType = $vars['servertype'];
+
+	if ($serverType === _OpenVZ6::TYPE) {
+		$fieldOptions = _OpenVZ6::templates();
+		_OpenVZ6::productField($pid, 'ctid', 'text', [], true);
+		_OpenVZ6::productField($pid, 'template', 'dropdown', $fieldOptions, false);
+	}
 });
