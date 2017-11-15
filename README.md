@@ -6,19 +6,32 @@ Module for OpenVZ 6 integration
 2. libssh2 (https://www.libssh2.org/)
 
 ### Installing SSH2 with PECL
-_yum install gcc make libssh2 libssh2-devel_ \
-_pecl channel-update pecl.php.net_ \
-_pecl install ssh2_
+```
+yum install gcc make libssh2 libssh2-devel && \
+pecl channel-update pecl.php.net && \
+pecl install ssh2
+```
 
-Add to php.ini \
-_extension = "ssh2.so"_
+Add to php.ini
+```
+extension = "ssh2.so"
+```
 
-Then restart Apache \
-_service httpd restart_
+Then restart Apache
+```
+service httpd restart
+```
 
-Check this \
-_php -m | grep ssh2_
+Check this
+```
+php -m | grep ssh2
+```
 
 ## Module installation
-1. Just upload _/modules/servers/openvz6/_ in your WHMCS folder
+```
+cd PATH_TO_WHMCS/modules/servers && \
+git clone https://github.com/thalidzhokov/whmcs-openvz6 openvz6
+```
+
+OR just upload files into your WHMCS folder _/modules/servers/openvz6/_
 
