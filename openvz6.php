@@ -11,7 +11,7 @@ if (!defined('WHMCS')) {
 
 defined('PATH') or define('PATH', __DIR__);
 
-require_once PATH . '/_OpenVZ6.php';
+require_once PATH . '/classes/_OpenVZ6.php';
 
 /**
  * @param $params https://developers.whmcs.com/provisioning-modules/module-parameters/
@@ -759,7 +759,7 @@ function _openvz6_getJs($params = [])
  */
 function _openvz6_exec($params = [], $cmd = '')
 {
-	require_once PATH . '/SSH2.php';
+	require_once PATH . '/classes/SSH2.php';
 
 	$host = _openvz6_getHost($params);
 	$login = $params['serverusername'];

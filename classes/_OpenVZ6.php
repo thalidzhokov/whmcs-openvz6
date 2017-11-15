@@ -3,10 +3,6 @@
  * Author: Albert Thalidzhokov
  */
 
-if (!defined('WHMCS')) {
-	die('This file cannot be accessed directly');
-}
-
 /**
  * Class _OpenVZ6
  */
