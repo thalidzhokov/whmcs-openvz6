@@ -12,7 +12,7 @@ pecl channel-update pecl.php.net && \
 pecl install ssh2
 ```
 
-Add to php.ini
+Add into your php.ini
 ```
 extension = "ssh2.so"
 ```
