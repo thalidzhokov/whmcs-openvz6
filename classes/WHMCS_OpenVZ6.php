@@ -6,7 +6,7 @@
 /**
  * Class _OpenVZ6
  */
-class _OpenVZ6
+class WHMCS_OpenVZ6
 {
 	const TYPE = 'openvz6';
 	const PORT = 22;

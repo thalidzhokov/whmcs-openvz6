@@ -9,7 +9,7 @@ if (!defined('WHMCS')) {
 
 defined('PATH') or define('PATH', __DIR__);
 
-require_once PATH . '/classes/_OpenVZ6.php';
+require_once PATH . '/classes/WHMCS_OpenVZ6.php';
 
 /**
  * Add custom fields for product
@@ -20,9 +20,9 @@ add_hook('ProductEdit', 1, function($vars) {
 	$pid = $vars['pid'];
 	$serverType = $vars['servertype'];
 
-	if ($serverType === _OpenVZ6::TYPE) {
-		$fieldOptions = _OpenVZ6::templates();
-		_OpenVZ6::productField($pid, 'ctid', 'text', [], true);
-		_OpenVZ6::productField($pid, 'template', 'dropdown', $fieldOptions, false);
+	if ($serverType === WHMCS_OpenVZ6::TYPE) {
+		$fieldOptions = WHMCS_OpenVZ6::templates();
+		WHMCS_OpenVZ6::productField($pid, 'ctid', 'text', [], true);
+		WHMCS_OpenVZ6::productField($pid, 'template', 'dropdown', $fieldOptions, false);
 	}
 });

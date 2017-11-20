@@ -11,7 +11,7 @@ if (!defined('WHMCS')) {
 
 defined('PATH') or define('PATH', __DIR__);
 
-require_once PATH . '/classes/_OpenVZ6.php';
+require_once PATH . '/classes/WHMCS_OpenVZ6.php';
 
 /**
  * @param $params https://developers.whmcs.com/provisioning-modules/module-parameters/
@@ -239,7 +239,7 @@ function openvz6_CreateAccount($params = [])
 	$serverId = $params['serverid'];
 
 	if (empty($ips) || !is_array($ips)) {
-		$productIps = _OpenVZ6::getAvailableIp($serverId);
+		$productIps = WHMCS_OpenVZ6::getAvailableIp($serverId);
 	} else {
 		$productIps = $ips;
 	}
@@ -251,22 +251,22 @@ function openvz6_CreateAccount($params = [])
 
 	if ($execCreate === 'success') {
 		// Write CTID into DB
-		$ctidCF = _OpenVZ6::getProductField($packageId, 'ctid', 'test');
+		$ctidCF = WHMCS_OpenVZ6::getProductField($packageId, 'ctid', 'test');
 		if (!empty($ctidCF['id']) && is_numeric($ctidCF['id'])) {
-			$ctidCFVal = _OpenVZ6::getProductFieldValue($ctidCF['id'], $serviceId);
+			$ctidCFVal = WHMCS_OpenVZ6::getProductFieldValue($ctidCF['id'], $serviceId);
 
 			if (!empty($ctidCF['id']) && empty($ctidCFVal['value'])) {
-				_OpenVZ6::addProductFieldValue($ctidCF['id'], $serviceId, $ctid);
+				WHMCS_OpenVZ6::addProductFieldValue($ctidCF['id'], $serviceId, $ctid);
 			}
 		}
 
 		// Write Template into DB
-		$templateCF = _OpenVZ6::getProductField($packageId, 'template', 'dropdown');
+		$templateCF = WHMCS_OpenVZ6::getProductField($packageId, 'template', 'dropdown');
 		if (!empty($templateCF['id']) && is_numeric($templateCF['id'])) {
-			$templateCFVal = _OpenVZ6::getProductFieldValue($templateCF['id'], $serviceId);
+			$templateCFVal = WHMCS_OpenVZ6::getProductFieldValue($templateCF['id'], $serviceId);
 
 			if (!empty($templateCF['id']) && empty($templateCFVal['value'])) {
-				_OpenVZ6::addProductFieldValue($templateCF['id'], $serviceId, $ctid);
+				WHMCS_OpenVZ6::addProductFieldValue($templateCF['id'], $serviceId, $ctid);
 			}
 		}
 
@@ -289,7 +289,7 @@ function openvz6_CreateAccount($params = [])
 					'CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 				];
 
-				if (_OpenVZ6::validateMsg($execIp, $successMsg) === 'success') {
+				if (WHMCS_OpenVZ6::validateMsg($execIp, $successMsg) === 'success') {
 					if ($i > 0) { // Assigned IPs
 						$query = 'SELECT * FROM `tblhosting` WHERE `id` = ' . $serviceId;
 						$results = mysql_query($query);
@@ -368,7 +368,7 @@ CMD;
 		'Creating container private area (' . $template . ') Performing postcreate actions CT configuration saved to /etc/vz/conf/' . $ctid . '.conf Container private area was created'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -448,7 +448,7 @@ CMD;
 		'Starting container... Container is mounted Container start in progress... Changing password for user root. passwd all authentication tokens updated successfully. Killing container ... Container was stopped Container is unmounted CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -464,7 +464,7 @@ function openvz6_SuspendAccount($params = [])
 		'Setting up checkpoint... suspend... dump... kill... Checkpointing completed successfully Container is unmounted'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -480,7 +480,7 @@ function openvz6_UnsuspendAccount($params)
 		'Restoring container ... Container is mounted undump... Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) resume... Container start in progress... Restoring completed successfully'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -497,7 +497,7 @@ function openvz6_TerminateAccount($params)
         'Destroying container private area: /vz/private/' . $ctid . ' Container private area was destroyed'
     ];
 
-    return _OpenVZ6::validateMsg($exec, $successMsg);
+    return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -515,7 +515,7 @@ function openvz6_ChangePassword($params = [])
 		'Changing password for user root. passwd: all authentication tokens updated successfully. UB limits were set successfully'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -530,7 +530,7 @@ function openvz6_ClientArea($params = [])
 	// ping
     if($dedicatedip) {
 	$html .= '<i class="openvz6-ping ' .
-		(_OpenVZ6::ping($dedicatedip) ? 'true' : 'false') . '"> Ping</i>';
+		(WHMCS_OpenVZ6::ping($dedicatedip) ? 'true' : 'false') . '"> Ping</i>';
     }
 
 	return $html;
@@ -551,7 +551,7 @@ function openvz6_AdminLink($params = [])
 
 	// ping
 	$html .= '<i class="openvz6-ping ' .
-		(_OpenVZ6::ping($host) ? 'true' : 'false') . '"> Ping</i>';
+		(WHMCS_OpenVZ6::ping($host) ? 'true' : 'false') . '"> Ping</i>';
 
 	return $html;
 }
@@ -796,7 +796,7 @@ function openvz6_vzctlStart($params = [])
 		'Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -813,7 +813,7 @@ function openvz6_vzctlRestart($params = [])
         'Restarting container Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -829,7 +829,7 @@ function openvz6_vzctlStop($params = [])
 		'Stopping container ... Container was stopped Container is unmounted'
 	];
 
-	return _OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
