@@ -690,30 +690,30 @@ function _openvz6_getStyle()
 {
 	ob_start(); ?>
 
-    <style>
-        .openvz6-ping {
-            color: rgba(0, 0, 0, .5);
-            font-size: 11px;
-            text-transform: uppercase;
-        }
+	<style>
+		.openvz6-ping {
+			color: rgba(0, 0, 0, .5);
+			font-size: 11px;
+			text-transform: uppercase;
+		}
 
-        .openvz6-ping::before {
-            content: '';
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            background-color: rgba(0, 0, 0, .1);
-            border-radius: 50%;
-        }
+		.openvz6-ping::before {
+			content: '';
+			display: inline-block;
+			width: 1rem;
+			height: 1rem;
+			background-color: rgba(0, 0, 0, .1);
+			border-radius: 50%;
+		}
 
-        .openvz6-ping.true::before {
-            background-color: green;
-        }
+		.openvz6-ping.true::before {
+			background-color: green;
+		}
 
-        .openvz6-ping.false::before {
-            background-color: red;
-        }
-    </style>
+		.openvz6-ping.false::before {
+			background-color: red;
+		}
+	</style>
 
 	<?php $style = ob_get_clean();
 
@@ -730,7 +730,7 @@ function _openvz6_getJs($params = [])
 
 	ob_start(); ?>
 
-    <script type="text/javascript">
+	<script type="text/javascript">
 		jQuery(document).ready(function ($) {
 
 			<?php if ($serverId) { ?>
@@ -747,7 +747,7 @@ function _openvz6_getJs($params = [])
 			<?php } ?>
 
 		});
-    </script>
+	</script>
 
 	<?php $script = ob_get_clean();
 
@@ -871,6 +871,24 @@ function openvz6_vzctlChkpnt($params = [])
 	$exec = _openvz6_exec($params, $cmd);
 
 	return $exec;
+}
+
+/**
+ * @param array $params
+ * @return string
+ */
+function openvz_reinstallCT($params = [])
+{
+	// stop CT
+	$stopCT = openvz6_vzctlStop($params);
+
+	// terminate CT
+	$terminateCT = openvz6_TerminateAccount($params);
+
+	// create
+	$createCT = openvz6_CreateAccount($params);
+
+	return $createCT;
 }
 
 /**
