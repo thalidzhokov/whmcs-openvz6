@@ -885,7 +885,7 @@ function openvz_reinstallCT($params = [])
 	// terminate CT
 	$terminateCT = openvz6_TerminateAccount($params);
 
-	// create
+	// create CT
 	$createCT = openvz6_CreateAccount($params);
 
 	return $createCT;
