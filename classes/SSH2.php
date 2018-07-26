@@ -136,6 +136,7 @@ class SSH2
 	/**
 	 * @param $cmd
 	 * @param bool $blocking
+	 * @throws Exception
 	 */
 	function cmd($cmd, $blocking = True)
 	{

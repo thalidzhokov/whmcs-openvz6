@@ -4,9 +4,9 @@
  */
 
 /**
- * Class _OpenVZ6
+ * Class WHMCS_OVZ6
  */
-class WHMCS_OpenVZ6
+class WHMCS_OVZ6
 {
 	const TYPE = 'openvz6';
 	const PORT = 22;
@@ -241,6 +241,47 @@ class WHMCS_OpenVZ6
 			$query = 'INSERT INTO `tblcustomfieldsvalues` (' . $fields . ') VALUES(' . $values . ')';
 			mysql_query($query);
 		}
+	}
+
+
+	/**
+	 * @param array $params
+	 * @return int
+	 */
+	public static function generateCTID($params = [])
+	{
+		$serviceId = !empty($params['serviceid'])
+			? $params['serviceid']
+			: 0;
+		$CTID = 0;
+
+		if ($serviceId && is_numeric($serviceId)) {
+			$CTID = 10000 + $serviceId;
+			$i = 0;
+
+			while ($i < 1) {
+				// check db
+				$query = 'SELECT * FROM  `tblhosting` WHERE `id` = "' . $CTID . '"';
+				$results = mysql_query($query);
+				$services = [];
+
+				while (($row = mysql_fetch_assoc($results)) !== False) {
+					$services[] = $row;
+				}
+
+				if (count($services) === 0) {
+					$i += 1;
+				} else {
+					$CTID *= 10;
+
+					if ($CTID > pow(10, 9) - 1) {
+						$i += 1;
+					}
+				}
+			}
+		}
+
+		return $CTID;
 	}
 
 	/**

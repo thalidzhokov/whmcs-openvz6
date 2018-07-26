@@ -11,7 +11,8 @@ if (!defined('WHMCS')) {
 
 defined('PATH') or define('PATH', __DIR__);
 
-require_once PATH . '/classes/WHMCS_OpenVZ6.php';
+require_once PATH . '/classes/SSH2.php';
+require_once PATH . '/classes/WHMCS_OVZ6.php';
 
 /**
  * @param $params https://developers.whmcs.com/provisioning-modules/module-parameters/
@@ -208,20 +209,26 @@ function openvz6_ConfigOptions()
 function openvz6_CreateAccount($params = [])
 {
 	$serviceId = $params['serviceid'];
+	
+	// Check CTID
 	$ctid = $params['customfields']['ctid'];
 
 	if (empty($ctid) || !is_numeric($ctid)) {
-		$ctid = _openvz6_generateCTID($params);
+		$ctid = WHMCS_OVZ6::generateCTID($params);
 	}
 
+	// Check template
 	$template = $params['customfields']['template'];
 
 	if (empty($template) || !is_string($template)) {
 		$template = 'centos-6-x86_64-minimal';
 	}
 
+	// Get data
 	$query = 'SELECT * FROM `tblhosting` WHERE `id` = "' . $serviceId . '"';
 	$results = mysql_query($query);
+	
+	// Check IP
 	$ips = [];
 
 	while (($row = mysql_fetch_assoc($results)) !== False) {
@@ -239,7 +246,7 @@ function openvz6_CreateAccount($params = [])
 	$serverId = $params['serverid'];
 
 	if (empty($ips) || !is_array($ips)) {
-		$productIps = WHMCS_OpenVZ6::getAvailableIp($serverId);
+		$productIps = WHMCS_OVZ6::getAvailableIp($serverId);
 	} else {
 		$productIps = $ips;
 	}
@@ -251,24 +258,24 @@ function openvz6_CreateAccount($params = [])
 
 	if ($execCreate === 'success') {
 		// Write CTID into DB
-		$ctidCF = WHMCS_OpenVZ6::getProductField($packageId, 'ctid', 'test');
+		$ctidCF = WHMCS_OVZ6::getProductField($packageId, 'ctid', 'text');
 
 		if (!empty($ctidCF['id']) && is_numeric($ctidCF['id'])) {
-			$ctidCFVal = WHMCS_OpenVZ6::getProductFieldValue($ctidCF['id'], $serviceId);
+			$ctidCFVal = WHMCS_OVZ6::getProductFieldValue($ctidCF['id'], $serviceId);
 
 			if (!empty($ctidCF['id']) && empty($ctidCFVal['value'])) {
-				WHMCS_OpenVZ6::addProductFieldValue($ctidCF['id'], $serviceId, $ctid);
+				WHMCS_OVZ6::addProductFieldValue($ctidCF['id'], $serviceId, $ctid);
 			}
 		}
 
 		// Write Template into DB
-		$templateCF = WHMCS_OpenVZ6::getProductField($packageId, 'template', 'dropdown');
+		$templateCF = WHMCS_OVZ6::getProductField($packageId, 'template', 'dropdown');
 
 		if (!empty($templateCF['id']) && is_numeric($templateCF['id'])) {
-			$templateCFVal = WHMCS_OpenVZ6::getProductFieldValue($templateCF['id'], $serviceId);
+			$templateCFVal = WHMCS_OVZ6::getProductFieldValue($templateCF['id'], $serviceId);
 
 			if (!empty($templateCF['id']) && empty($templateCFVal['value'])) {
-				WHMCS_OpenVZ6::addProductFieldValue($templateCF['id'], $serviceId, $ctid);
+				WHMCS_OVZ6::addProductFieldValue($templateCF['id'], $serviceId, $ctid);
 			}
 		}
 
@@ -291,7 +298,7 @@ function openvz6_CreateAccount($params = [])
 					'CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 				];
 
-				if (WHMCS_OpenVZ6::validateMsg($execIp[$productIpKey], $successMsg) === 'success') {
+				if (WHMCS_OVZ6::validateMsg($execIp[$productIpKey], $successMsg) === 'success') {
 					if ($i > 0) { // Assigned IPs
 						$query = 'SELECT * FROM `tblhosting` WHERE `id` = ' . $serviceId;
 						$results = mysql_query($query);
@@ -370,7 +377,7 @@ CMD;
 		'Creating container private area (' . $template . ') Performing postcreate actions CT configuration saved to /etc/vz/conf/' . $ctid . '.conf Container private area was created'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -450,7 +457,7 @@ CMD;
 		'Starting container... Container is mounted Container start in progress... Changing password for user root. passwd: all authentication tokens updated successfully. Killing container ... Container was stopped Container is unmounted CT configuration saved to /etc/vz/conf/' . $ctid . '.conf'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -466,7 +473,7 @@ function openvz6_SuspendAccount($params = [])
 		'Setting up checkpoint... suspend... dump... kill... Checkpointing completed successfully Container is unmounted'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -482,7 +489,7 @@ function openvz6_UnsuspendAccount($params)
 		'Restoring container ... Container is mounted undump... Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) resume... Container start in progress... Restoring completed successfully'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -499,7 +506,7 @@ function openvz6_TerminateAccount($params)
 		'Destroying container private area: /vz/private/' . $ctid . ' Container private area was destroyed'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -517,7 +524,7 @@ function openvz6_ChangePassword($params = [])
 		'Changing password for user root. passwd: all authentication tokens updated successfully. UB limits were set successfully'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -532,7 +539,7 @@ function openvz6_ClientArea($params = [])
 	// ping
 	if ($dedicatedip) {
 		$html .= '<i class="openvz6-ping ' .
-			(WHMCS_OpenVZ6::ping($dedicatedip) ? 'true' : 'false') . '"> Ping</i>';
+			(WHMCS_OVZ6::ping($dedicatedip) ? 'true' : 'false') . '"> Ping</i>';
 	}
 
 	return $html;
@@ -553,7 +560,7 @@ function openvz6_AdminLink($params = [])
 
 	// ping
 	$html .= '<i class="openvz6-ping ' .
-		(WHMCS_OpenVZ6::ping($host) ? 'true' : 'false') . '"> Ping</i>';
+		(WHMCS_OVZ6::ping($host) ? 'true' : 'false') . '"> Ping</i>';
 
 	return $html;
 }
@@ -761,8 +768,6 @@ function _openvz6_getJs($params = [])
  */
 function _openvz6_exec($params = [], $cmd = '')
 {
-	require_once PATH . '/classes/SSH2.php';
-
 	$host = _openvz6_getHost($params);
 	$login = $params['serverusername'];
 	$password = $params['serverpassword'];
@@ -799,7 +804,7 @@ function openvz6_vzctlStart($params = [])
 		'Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -816,7 +821,7 @@ function openvz6_vzctlRestart($params = [])
 		'Restarting container Starting container... Container is mounted Adding IP addresses: (IPS) Setting CPU limit: (CPULIMIT) Setting CPU units: (CPUUNITS) Setting CPUs: (CPUS) Container start in progress...'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -832,7 +837,7 @@ function openvz6_vzctlStop($params = [])
 		'Stopping container ... Container was stopped Container is unmounted'
 	];
 
-	return WHMCS_OpenVZ6::validateMsg($exec, $successMsg);
+	return WHMCS_OVZ6::validateMsg($exec, $successMsg);
 }
 
 /**
@@ -891,43 +896,4 @@ function openvz_reinstallCT($params = [])
 	return $createCT;
 }
 
-/**
- * @param array $params
- * @return int
- */
-function _openvz6_generateCTID($params = [])
-{
-	$serviceId = !empty($params['serviceid'])
-		? $params['serviceid']
-		: 0;
-	$CTID = 0;
-
-	if ($serviceId && is_numeric($serviceId)) {
-		$CTID = 10000 + $serviceId;
-		$i = 0;
-
-		while ($i < 1) {
-			// check db
-			$query = 'SELECT * FROM  `tblhosting` WHERE `id` = "' . $CTID . '"';
-			$results = mysql_query($query);
-			$services = [];
-
-			while (($row = mysql_fetch_assoc($results)) !== False) {
-				$services[] = $row;
-			}
-
-			if (count($services) === 0) {
-				$i += 1;
-			} else {
-				$CTID *= 10;
-
-				if ($CTID > pow(10, 9) - 1) {
-					$i += 1;
-				}
-			}
-		}
-	}
-
-	return $CTID;
-}
 
