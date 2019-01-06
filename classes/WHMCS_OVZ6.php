@@ -42,13 +42,15 @@ class WHMCS_OVZ6
 	 */
 	public static function servers($serverGroup = 0)
 	{
+		global $whmcsmysql;
+
 		$servers = [];
 
 		if (is_numeric($serverGroup)) {
 			$query = 'SELECT * FROM `tblservers` WHERE `type` = "' . self::TYPE . '"';
-			$results = mysql_query($query);
+			$results = mysqli_query($whmcsmysql, $query);
 
-			while (($row = mysql_fetch_assoc($results)) !== False) {
+			while (($row = mysqli_fetch_assoc($results)) !== False) {
 				$servers += $row;
 			}
 		}
@@ -109,6 +111,8 @@ class WHMCS_OVZ6
 	 */
 	public static function getProductField($pid = 0, $fieldName = '', $fieldType = '')
 	{
+		global $whmcsmysql;
+
 		$field = [];
 		$fields = [];
 
@@ -125,9 +129,9 @@ class WHMCS_OVZ6
 				$query .= ' AND `fieldtype` = "' . $fieldType . '"';
 			}
 
-			$results = mysql_query($query);
+			$results = mysqli_query($whmcsmysql, $query);
 
-			while (($row = mysql_fetch_assoc($results)) !== False) {
+			while (($row = mysqli_fetch_assoc($results)) !== False) {
 				$fields[] = $row;
 			}
 
@@ -148,6 +152,7 @@ class WHMCS_OVZ6
 	 */
 	public static function addProductField($pid = 0, $fieldName = '', $fieldType = '', $fieldOptions = [], $adminOnly = False)
 	{
+		global $whmcsmysql;
 
 		if ($pid && is_numeric($pid) &&
 			$fieldName && is_string($fieldName)
@@ -194,7 +199,7 @@ class WHMCS_OVZ6
 			}
 
 			$query = 'INSERT INTO `tblcustomfields` (' . $fields . ') VALUES (' . $values . '); ';
-			mysql_query($query);
+			mysqli_query($whmcsmysql, $query);
 		}
 	}
 
@@ -205,14 +210,16 @@ class WHMCS_OVZ6
 	 */
 	public static function getProductFieldValue($fieldId = 0, $serviceId = 0)
 	{
+		global $whmcsmysql;
+
 		$field = [];
 
 		if ($fieldId && is_numeric($fieldId) && $serviceId && is_numeric($serviceId)) {
 			$query = 'SELECT * FROM `tblcustomfieldsvalues` WHERE `fieldid` = "' . $fieldId . '" AND `relid` = "' . $serviceId . '"';
-			$results = mysql_query($query);
+			$results = mysqli_query($whmcsmysql, $query);
 			$fields = [];
 
-			while (($row = mysql_fetch_assoc($results)) !== False) {
+			while (($row = mysqli_fetch_assoc($results)) !== False) {
 				$fields[] = $row;
 			}
 			if (count($fields) > 0) {
@@ -230,6 +237,7 @@ class WHMCS_OVZ6
 	 */
 	public static function addProductFieldValue($fieldId = 0, $serviceId = 0, $value = '')
 	{
+		global $whmcsmysql;
 
 		if (
 			$fieldId && is_numeric($fieldId) &&
@@ -239,17 +247,18 @@ class WHMCS_OVZ6
 			$fields = '`fieldid`, `relid`, `value`';
 			$values = '"' . $fieldId . '", "' . $serviceId . '", "' . $value . '")';
 			$query = 'INSERT INTO `tblcustomfieldsvalues` (' . $fields . ') VALUES(' . $values . ')';
-			mysql_query($query);
+			mysqli_query($whmcsmysql, $query);
 		}
 	}
 
-
 	/**
 	 * @param array $params
-	 * @return int
+	 * @return int|string
 	 */
 	public static function generateCTID($params = [])
 	{
+		global $whmcsmysql;
+
 		$serviceId = !empty($params['serviceid'])
 			? $params['serviceid']
 			: 0;
@@ -262,10 +271,10 @@ class WHMCS_OVZ6
 			while ($i < 1) {
 				// check db
 				$query = 'SELECT * FROM  `tblhosting` WHERE `id` = "' . $CTID . '"';
-				$results = mysql_query($query);
+				$results = mysqli_query($whmcsmysql, $query);
 				$services = [];
 
-				while (($row = mysql_fetch_assoc($results)) !== False) {
+				while (($row = mysqli_fetch_assoc($results)) !== False) {
 					$services[] = $row;
 				}
 
@@ -426,6 +435,8 @@ HTML;
 	 */
 	public static function getAvailableIp($serverId = 0)
 	{
+		global $whmcsmysql;
+
 		$ips = [
 			4 => [],
 			6 => []
@@ -437,13 +448,13 @@ HTML;
 
 		if ($serverId && is_numeric($serverId)) {
 			$query = 'SELECT * FROM  `tblservers` WHERE  `id` = "' . $serverId . '"';
-			$results = mysql_query($query);
+			$results = mysqli_query($whmcsmysql, $query);
 			$serverIps = [
 				4 => [],
 				6 => []
 			];
 
-			while (($row = mysql_fetch_assoc($results)) !== False) {
+			while (($row = mysqli_fetch_assoc($results)) !== False) {
 				$assignedIps = $row['assignedips'];
 
 				if ($assignedIps) {
@@ -460,13 +471,13 @@ HTML;
 			}
 
 			$query = 'SELECT * FROM `tblhosting` WHERE (`dedicatedip` <> "" OR `assignedips` <> "")';
-			$results = mysql_query($query);
+			$results = mysqli_query($whmcsmysql, $query);
 			$allIps = [
 				4 => [],
 				6 => []
 			];
 
-			while (($row = mysql_fetch_assoc($results)) !== False) {
+			while (($row = mysqli_fetch_assoc($results)) !== False) {
 				$dedicatedIp = trim($row['dedicatedip']);
 
 				if ($dedicatedIp) {

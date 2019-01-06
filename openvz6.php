@@ -208,8 +208,10 @@ function openvz6_ConfigOptions()
  */
 function openvz6_CreateAccount($params = [])
 {
+	global $whmcsmysql;
+
 	$serviceId = $params['serviceid'];
-	
+
 	// Check CTID
 	$ctid = $params['customfields']['ctid'];
 
@@ -226,12 +228,12 @@ function openvz6_CreateAccount($params = [])
 
 	// Get data
 	$query = 'SELECT * FROM `tblhosting` WHERE `id` = "' . $serviceId . '"';
-	$results = mysql_query($query);
-	
+	$results = mysqli_query($whmcsmysql, $query);
+
 	// Check IP
 	$ips = [];
 
-	while (($row = mysql_fetch_assoc($results)) !== False) {
+	while (($row = mysqli_fetch_assoc($results)) !== False) {
 		$ips[] = $row['dedicatedip'];
 
 		$assignedIps = trim($row['assignedips']);
@@ -285,7 +287,7 @@ function openvz6_CreateAccount($params = [])
 		if ($execParams === 'success') {
 			// Write root AS username
 			$query = 'UPDATE `tblhosting` SET `username` = "root" WHERE `id` = ' . $serviceId;
-			mysql_query($query);
+			mysqli_query($whmcsmysql, $query);
 
 			$execIp = [];
 			$i = 0;
@@ -301,10 +303,10 @@ function openvz6_CreateAccount($params = [])
 				if (WHMCS_OVZ6::validateMsg($execIp[$productIpKey], $successMsg) === 'success') {
 					if ($i > 0) { // Assigned IPs
 						$query = 'SELECT * FROM `tblhosting` WHERE `id` = ' . $serviceId;
-						$results = mysql_query($query);
+						$results = mysqli_query($whmcsmysql, $query);
 						$services = [];
 
-						while (($row = mysql_fetch_assoc($results)) !== False) {
+						while (($row = mysqli_fetch_assoc($results)) !== False) {
 							$services[] = $row;
 						}
 
@@ -319,11 +321,11 @@ function openvz6_CreateAccount($params = [])
 							$assignedIps = implode("\n", $assignedIps);
 
 							$query = 'UPDATE `tblhosting` SET `assignedips` = "' . $assignedIps . '" WHERE `id` = "' . $serviceId . '"';
-							mysql_query($query);
+							mysqli_query($whmcsmysql, $query);
 						}
 					} else { // Dedicated IP
 						$query = 'UPDATE `tblhosting` SET `dedicatedip` = "' . $productIp . '" WHERE `id` = "' . $serviceId . '"';
-						mysql_query($query);
+						mysqli_query($whmcsmysql, $query);
 					}
 
 					$i += 1;
