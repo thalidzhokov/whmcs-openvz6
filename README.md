@@ -1,3 +1,5 @@
+# Project is not supported, improvements are required
+
 # WHMCS OpenVZ 6
 Module for OpenVZ 6 integration
 
